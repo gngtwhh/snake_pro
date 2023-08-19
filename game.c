@@ -6,20 +6,19 @@
 #include "snake.h"
 
 //游戏数据
-typedef struct snake {
-    int x, y;
-    struct snake *prior, *next;
-} snake;//蛇身体的一个结点的类型
-snake *head, *tail;//指向蛇头和蛇尾结点的指针
 
-struct APPLE {
-    int x, y;
-} apple;//苹果的坐标数据
+snake *head1, *tail1, *head2, *tail2;//指向蛇头和蛇尾结点的指针
 
-int score, pre_x, pre_y, wait = 500;//得分;前一个x,y坐标;等待时长(和游戏难度有关---改变蛇移动的速度)
+APPLE apple;//苹果的坐标数据
+
+int score[3] = {0},
+        pre_x[3] = {0},
+        pre_y[3] = {0},
+        wait = 500;//得分;前一个x,y坐标;等待时长(和游戏难度有关---改变蛇移动的速度)
 int HEIGHT = 30;//地图高度
 int WIDTH = 30;//地图宽度
-int curSnakeLen = 0;//当前的蛇身长度
+int curSnakeLen[3] = {0};//当前的蛇身长度
+
 int maxSnakeLen = 0;//地图能容纳的最大蛇身长度,达到这个长度意味着游戏胜利
 
 //starting
@@ -91,15 +90,17 @@ void printBox() {
     }
 }
 
-void initSnakeAndApple() {//缺陷:此函数未处理malloc可能的错误
+//head_x为逻辑坐标,函数内进行*2操作;id为当前蛇的编号(从1开始)
+void initSnakeAndApple(int id, int head_x, int head_y, snake *head,
+                       snake *tail) {//缺陷:此函数未处理malloc可能的错误
     //初始化数据
     //以双向链表存储整条蛇,方便进行向前/向后遍历
 
     //创建蛇头
     head = (snake *) malloc(sizeof(snake));
     head->next = head->prior = NULL;
-    head->x = 16;
-    head->y = 4;
+    head->x = head_x * 2;
+    head->y = head_y;
     //创建剩余3个普通蛇身结点---游戏开局蛇的长度默认为4
     snake *temp = head;
     for (int i = 1; i <= 3; ++i) {
@@ -112,7 +113,7 @@ void initSnakeAndApple() {//缺陷:此函数未处理malloc可能的错误
     }
     temp->next = NULL;
     tail = temp;
-    curSnakeLen = 4;//初始时蛇的长度为4
+    curSnakeLen[id] = 4;//初始时蛇的长度为4
     maxSnakeLen = (WIDTH - 2) * (HEIGHT - 2);//根据地图大小计算游戏胜利蛇应该达到的长度
 
     //打印蛇头
@@ -137,9 +138,8 @@ void initSnakeAndApple() {//缺陷:此函数未处理malloc可能的错误
     printf("■");
 
     //记录蛇尾
-    pre_x = tail->x;
-    pre_y = tail->y;
-    return;
+    pre_x[id] = tail->x;
+    pre_y[id] = tail->y;
 }
 
 void setDifficulty() {
@@ -164,7 +164,7 @@ void setDifficulty() {
     wait = difficulties[n];//设置等待时间
 
     //初始化分数
-    score = 0;
+    score[id] = 0;
 
     rewind(stdin);//刷新缓冲区
     system("cls");//清屏
@@ -179,8 +179,17 @@ void start(int model) {
     gotoxy(WIDTH * 2 + 4, 3);
     color(7);
     printf("wasd控制,空格键暂停");
-    gotoxy(WIDTH * 2 + 4, 5);
-    printf("score:");
+
+    if (model == 2) {
+        //双人对战显示两个不同的分数
+        gotoxy(WIDTH * 2 + 4, 5);
+        printf("palyer1 score:");
+        gotoxy(WIDTH * 2 + 4, 6);
+        printf("palyer2 score:");
+    } else {
+        gotoxy(WIDTH * 2 + 4, 5);
+        printf("score:");
+    }
 
     while (1) {
         //分模式进行不同的结束处理
@@ -197,9 +206,19 @@ void start(int model) {
         }
 
         //打印当前成绩
-        gotoxy(WIDTH * 2 + 10, 5);
-        color(7);
-        printf("%d", score);
+        if (model == 2) {
+            //双人对战显示两个不同的分数
+            color(7);
+            gotoxy(WIDTH * 2 + 18, 5);
+            printf("%d", score[1]);
+            gotoxy(WIDTH * 2 + 18, 6);
+            printf("%d", score[1]);
+        } else {
+            gotoxy(WIDTH * 2 + 10, 5);
+            color(7);
+            printf("%d", score[1]);
+        }
+
         //蛇运动
         flag2 = flag;//保存当前的前进方向
         flag = keyboard(flag);//获取新的(可能发生改变的)移动方向
@@ -212,7 +231,7 @@ void start(int model) {
         if (head->x == apple.x && head->y == apple.y) {//吃到苹果
             snakeGrowth();//蛇长长
 
-            if (curSnakeLen == maxSnakeLen) {
+            if (curSnakeLen[1] + curSnakeLen[2] == maxSnakeLen) {
                 gamewin();//游戏胜利
                 return;
             }

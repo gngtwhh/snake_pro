@@ -6,7 +6,7 @@
 //nemu
 void printMenu() {
     const char *logo[10] = {"   ________\n",
-                            "  / ______ \\    v1.0.0~~~\n",
+                            "  / ______ \\    v2.0.0~~~\n",
                             " / /      \\ \\                                 ___\n",
                             " | \\      |_|                                 | | \n",
                             "  \\ \\______     ___ ______       ____   ___   | | __    ______\n",
@@ -42,18 +42,23 @@ void initGame(int model) {//初始化各项数据
     setDifficulty();
     //2.0版本更新游戏模式,此处初始化游戏界面使用switch进行分情况处理
     //暂时3种游戏模式的初始界面相同,switch用于日后方便扩展功能
+    extern snake *head1, *head2, *tail1, *tail2;
     switch (model) {
         case 1:
             printBox();
+            initSnakeAndApple(1, 8, 4, head1, tail1);
             break;
         case 2:
             printBox();
+            initSnakeAndApple(1, 8, 4, head1, tail1);
+            initSnakeAndApple(1, 8, 6, head2, tail2);
             break;
         case 3:
             printBox();
+            initSnakeAndApple(1, 8, 4, head1, tail1);
             break;
     }
-    initSnakeAndApple();
+
 }
 
 void showRank() {
