@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
+#include <windows.h>
 #include "snake.h"//包含了所有的函数声明,和为了与c++兼容设置的bool宏
 
 int main() {
@@ -30,10 +31,15 @@ int main() {
             system("cls");//游戏结束清屏
             printMenu();//重新打印菜单
         } else if (c == '3') {
-            initGame(3);//游戏数据初始化
+            system("cls");
+            printf("正在开发中...");
+            Sleep(1000);
+            system("cls");
+            printMenu();
+            /*initGame(3);//游戏数据初始化
             start(3);//正式开始一局对战模式游戏
             system("cls");//游戏结束清屏
-            printMenu();//重新打印菜单
+            printMenu();//重新打印菜单*/
         } else if (c == '4') {
             color(7);//将颜色设置回白色
             gotoxy(0, 18);
