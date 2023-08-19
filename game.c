@@ -172,7 +172,7 @@ void setDifficulty() {
 }
 
 //game bejin
-void start(int model) {
+void start() {
     int flag = 2, flag2;//初始向左运动
     bool pause_game = false;
     //打印提示区域
@@ -183,19 +183,10 @@ void start(int model) {
     printf("score:");
 
     while (1) {
-        //分模式进行不同的结束处理
-        if (model == 1 || model == 3) {
-            if (againstTheWall() || againstSelf()) {//判断游戏结束
-                gameover();//进行游戏结束的处理
-                return;//处理完毕后结束这一局的游戏,跳转回主控制循环
-            }
-        } else if (model == 2) {
-            if (againstSelf()) {//判断游戏结束
-                gameover();//进行游戏结束的处理
-                return;//处理完毕后结束这一局的游戏,跳转回主控制循环
-            }
+        if (againstTheWall() || againstSelf()) {//判断游戏结束
+            gameover();//进行游戏结束的处理
+            return;//处理完毕后结束这一局的游戏,跳转回主控制循环
         }
-
         //打印当前成绩
         gotoxy(WIDTH * 2 + 10, 5);
         color(7);
@@ -204,7 +195,7 @@ void start(int model) {
         flag2 = flag;//保存当前的前进方向
         flag = keyboard(flag);//获取新的(可能发生改变的)移动方向
         if (flag <= 4)
-            moveSnake(flag, model);
+            moveSnake(flag);
         else if (flag == 5) {//5代表输入了空格,意味着暂停游戏
             pause_game = true;//设置暂停标志位
             flag = flag2;//前进方向重置为原来的方向
@@ -318,7 +309,7 @@ void gamewin() {//游戏胜利的处理
     while (c = _getch() != ' ');//同样等待输入
 }
 
-void moveSnake(int flag, int model) {//蛇的正常前进
+void moveSnake(int flag) {//蛇的正常前进
     int move[4][2] = {
             {0,  -1},
             {-2, 0},
@@ -329,7 +320,6 @@ void moveSnake(int flag, int model) {//蛇的正常前进
     //保存蛇尾位置
     pre_x = tail->x;
     pre_y = tail->y;
-
     //蛇尾,旧蛇头覆盖打印
     gotoxy(tail->x, tail->y);
     color(7);
@@ -338,7 +328,6 @@ void moveSnake(int flag, int model) {//蛇的正常前进
     gotoxy(head->x, head->y);
     color(6);
     printf("■");
-
     //蛇尾断开
     snake *temp = tail;
     tail = tail->prior;
@@ -348,40 +337,9 @@ void moveSnake(int flag, int model) {//蛇的正常前进
     temp->prior = NULL;
     head->prior = temp;
     head = temp;
-
-
-    //新蛇头位置计算
-    //此时需要分游戏模式进行分情况计算
-
-    if (model == 1 || model == 3) {
-        //地图边界不可穿过的模式
-        head->x = head->next->x + move[flag][0];
-        head->y = head->next->y + move[flag][1];
-    } else if (model == 2) {
-        //无界模式当碰到边界时进行回绕,
-        // 四种情况互不重叠,所以使用一个if...else if...else结构
-        if (head->next->x + move[flag][0] == 0) {
-            //到达最左边则传送到对应的最右边
-            head->x = (WIDTH - 1) * 2 - 2;
-            head->y = head->next->y + move[flag][1];
-        } else if (head->next->x + move[flag][0] == (WIDTH - 1) * 2) {
-            //到达最右边则传送到对应的最左边
-            head->x = 2;
-            head->y = head->next->y + move[flag][1];
-        } else if (head->next->y + move[flag][1] == 0) {
-            //到达最上边则传送到对应的最下边
-            head->x = head->next->x + move[flag][0];
-            head->y = HEIGHT - 2;
-        } else if (head->next->y + move[flag][1] == HEIGHT - 1) {
-            //到达最下边则传送到对应的最上边
-            head->x = head->next->x + move[flag][0];
-            head->y = 1;
-        } else {
-            head->x = head->next->x + move[flag][0];
-            head->y = head->next->y + move[flag][1];
-        }
-    }
-    //蛇头位置计算完成后进行打印
+    //新蛇头位置计算并打印
+    head->x = head->next->x + move[flag][0];
+    head->y = head->next->y + move[flag][1];
     gotoxy(head->x, head->y);
     color(2);
     printf("■");

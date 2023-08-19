@@ -11,7 +11,6 @@
 void color(int i) {//更改文字颜色
 	//SetConsoleTextAttribute是API设置控制台窗口字体颜色和背景色的函数
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), i);
-	return;
 }
 
 //游戏中每次调用gotoxy时的参数都是根据游戏菜单字符位置/当前坐标计算好传递过来的

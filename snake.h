@@ -4,7 +4,7 @@
 
 //main nemu---主菜单
 void printMenu();//打印菜单界面
-void initGame(int model);//初始化游戏数据总控制函数
+void initGame();//初始化游戏数据总控制函数
 void wrongInput();//菜单选择错误输入处理
 //void showRank();显示分数排行,暂未实现
 
@@ -14,13 +14,13 @@ void initSnakeAndApple();//初始化蛇和苹果
 void setDifficulty();//设置游戏难度
 
 //game begin---游戏逻辑主体
-void start(int model);//游戏主循环(总控制)
+void start();//游戏主循环(总控制)
 bool againstTheWall();//检查蛇是否撞墙
 bool againstSelf();//检查蛇是否撞到自己
 void gameover();//游戏结束处理
 void gamewin();//游戏胜利界面
+void moveSnake(int);//移动蛇
 void snakeGrowth();//吃到苹果时蛇增长
-void moveSnake(int flag,int model);//移动蛇
 bool isOverlap();//生成苹果时检查是否错误地生成在蛇身体上
 void destoryGameData();//当前一局游戏结束时释放空间
 
