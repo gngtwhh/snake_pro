@@ -1,6 +1,9 @@
 #define bool int//纯c语言,需要宏定义bool类型
 #define false 0
 #define true 1
+#define MAX_IS(a,b) ((a)>(b)?(1):(2))
+
+//蛇链表结点数据结构
 #ifndef SNAKE_NODE
 #define SNAKE_NODE
 typedef struct snake {
@@ -8,12 +11,15 @@ typedef struct snake {
     struct snake *prior, *next;
 } snake;//蛇身体的一个结点的类型
 #endif
+
+//存储苹果
 #ifndef APPLE_NODE
 #define APPLE_NODE
 typedef struct APPLE {
     int x, y;
 } APPLE;
 #endif
+
 //main nemu---主菜单
 void printMenu();//打印菜单界面
 void initGame(int model);//初始化游戏数据总控制函数
@@ -28,12 +34,14 @@ void setDifficulty();//设置游戏难度
 
 //game begin---游戏逻辑主体
 void start(int model);//游戏主循环(总控制)
+//void snakeBehavior(snake*head,snake*tail,int id,int flag);//蛇的行为控制,包括移动,增长和吃到苹果的处理,4个参数分别为蛇头,蛇尾,蛇编号,方向
 bool againstTheWall();//检查蛇是否撞墙
 bool againstSelf();//检查蛇是否撞到自己
 void gameover();//游戏结束处理
 void gamewin();//游戏胜利界面
-void snakeGrowth();//吃到苹果时蛇增长
-void moveSnake(int flag, int model);//移动蛇
+void snakeGrowth(int id);//吃到苹果时蛇增长
+void moveSnake(int id,int flag, int model);//移动蛇,三个参数为蛇编号,方向,游戏模式
+void eatApple(int id);//吃到了苹果时的处理---包括苹果的重新生成和蛇的增长
 bool isOverlap();//生成苹果时检查是否错误地生成在蛇身体上
 void destoryGameData();//当前一局游戏结束时释放空间
 

@@ -4,10 +4,9 @@
 #include <conio.h>
 #include <time.h>
 #include "snake.h"
-
 //游戏数据
 
-snake *head1, *tail1, *head2, *tail2;//指向蛇头和蛇尾结点的指针
+snake *head_arr[3], *tail_arr[3];//指向蛇头和蛇尾结点的指针
 
 APPLE apple;//苹果的坐标数据
 
@@ -20,6 +19,7 @@ int WIDTH = 30;//地图宽度
 int curSnakeLen[3] = {0};//当前的蛇身长度
 
 int maxSnakeLen = 0;//地图能容纳的最大蛇身长度,达到这个长度意味着游戏胜利
+bool win_flag = true;
 
 //starting
 void printBox() {
@@ -164,11 +164,10 @@ void setDifficulty() {
     wait = difficulties[n];//设置等待时间
 
     //初始化分数
-    score[id] = 0;
+    memset(score, 0, sizeof(score));
 
     rewind(stdin);//刷新缓冲区
     system("cls");//清屏
-    return;
 }
 
 //game bejin
@@ -193,14 +192,31 @@ void start(int model) {
 
     while (1) {
         //分模式进行不同的结束处理
-        if (model == 1 || model == 3) {
-            if (againstTheWall() || againstSelf()) {//判断游戏结束
+        if (model == 1 || model == 2) {
+            //个人模式
+            if (curSnakeLen[1] == maxSnakeLen) {
+                gamewin(0);//游戏胜利---0为个人胜利
+                return;
+            }
+            if (model == 1 &&
+                (againstTheWall() || againstSelf())) {//判断游戏结束,这里利用了短路&&
+                gameover();//进行游戏结束的处理
+                return;//处理完毕后结束这一局的游戏,跳转回主控制循环
+            } else if (model == 2 && againstSelf()) {
                 gameover();//进行游戏结束的处理
                 return;//处理完毕后结束这一局的游戏,跳转回主控制循环
             }
-        } else if (model == 2) {
-            if (againstSelf()) {//判断游戏结束
-                gameover();//进行游戏结束的处理
+        } else if (model == 3) {
+            //对战模式
+            if (curSnakeLen[1] + curSnakeLen[2] == maxSnakeLen) {
+                gamewin(MAX_IS(curSnakeLen[1], curSnakeLen[2]));//游戏胜利---参数为获胜方id
+                return;
+            }
+            if (againstSelf(1) || againstSelf(1)) {//判断游戏结束
+                gamewin(2);//玩家2胜利
+                return;//处理完毕后结束这一局的游戏,跳转回主控制循环
+            } else if (againstSelf(2) || againstSelf(2)) {//判断游戏结束
+                gamewin(1);//玩家1胜利
                 return;//处理完毕后结束这一局的游戏,跳转回主控制循环
             }
         }
@@ -219,33 +235,28 @@ void start(int model) {
             printf("%d", score[1]);
         }
 
-        //蛇运动
+        //蛇1运动
         flag2 = flag;//保存当前的前进方向
         flag = keyboard(flag);//获取新的(可能发生改变的)移动方向
         if (flag <= 4)
-            moveSnake(flag, model);
+            moveSnake(id, flag, model);
         else if (flag == 5) {//5代表输入了空格,意味着暂停游戏
             pause_game = true;//设置暂停标志位
             flag = flag2;//前进方向重置为原来的方向
         }
-        if (head->x == apple.x && head->y == apple.y) {//吃到苹果
-            snakeGrowth();//蛇长长
 
-            if (curSnakeLen[1] + curSnakeLen[2] == maxSnakeLen) {
-                gamewin();//游戏胜利
-                return;
-            }
-            //进行下一个苹果的生成(随机)
-            srand((unsigned int) time(NULL));
-            do {
-                apple.x = ((rand() % (WIDTH - 2)) + 1) * 2;
-                apple.y = (rand() % (HEIGHT - 2)) + 1;
-            } while (isOverlap());//直到苹果生成在正确的(没有生成在蛇身体上---需要对蛇的链表进行遍历)位置
-            gotoxy(apple.x, apple.y);//跳转到该坐标并进行打印苹果
-            color(4);
-            printf("■");
-            score++;//分数+1
+        //蛇2运动
+        flag2 = flag;//保存当前的前进方向
+        flag = keyboard(flag);//获取新的(可能发生改变的)移动方向
+        if (flag < 5)
+            moveSnake(head1, tail1, model);
+        else if (flag == 5) {//5代表输入了空格,意味着暂停游戏
+            pause_game = true;//设置暂停标志位
+            flag = flag2;//前进方向重置为原来的方向
         }
+
+
+        //游戏暂停处理
         if (pause_game) {//如果暂停标志位设置为true则暂停游戏
             gotoxy(WIDTH * 2 + 4, 4);
             color(7);
@@ -337,17 +348,24 @@ void gamewin() {//游戏胜利的处理
     while (c = _getch() != ' ');//同样等待输入
 }
 
-void moveSnake(int flag, int model) {//蛇的正常前进
+void moveSnake(int id, int flag, int model) {//蛇的正常前进
+    snake *head = head_arr[id];
+    snake *tail = tail_arr[id];
     int move[4][2] = {
             {0,  -1},
             {-2, 0},
             {0,  1},
             {2,  0}
     };//4种不同的移动方向对应的4种坐标变换
+
+    /*
+     * 首先处理常规的移动
+     */
+
     flag--;//对应move数组的元素--从下标0开始
     //保存蛇尾位置
-    pre_x = tail->x;
-    pre_y = tail->y;
+    pre_x[id] = tail->x;
+    pre_y[id] = tail->y;
 
     //蛇尾,旧蛇头覆盖打印
     gotoxy(tail->x, tail->y);
@@ -404,9 +422,33 @@ void moveSnake(int flag, int model) {//蛇的正常前进
     gotoxy(head->x, head->y);
     color(2);
     printf("■");
+
+    /*
+     * 接下来处理吃到苹果的情况
+     */
+    if (head->x == apple.x && head->y == apple.y)
+        eatApple(id);
 }
 
-void snakeGrowth() {//蛇的长度增长
+void eatApple(int id) {
+    snakeGrowth(id);//蛇长长
+
+
+    //进行下一个苹果的生成(随机)
+    srand((unsigned int) time(NULL));
+    do {
+        apple.x = ((rand() % (WIDTH - 2)) + 1) * 2;
+        apple.y = (rand() % (HEIGHT - 2)) + 1;
+    } while (isOverlap());//直到苹果生成在正确的(没有生成在蛇身体上---需要对蛇的链表进行遍历)位置
+    gotoxy(apple.x, apple.y);//跳转到该坐标并进行打印苹果
+    color(4);
+    printf("■");
+    score[id]++;//分数+1
+}
+
+void snakeGrowth(int id) {//蛇的长度增长
+    snake *head = head_arr[id];
+    snake *tail = tail_arr[id];
     //新增蛇身结点---即在蛇尾新增一个结点并即刻打印(蛇此时已前进一格且吃到苹果
     tail->next = (snake *) malloc(sizeof(snake));
     tail->next->prior = tail;
@@ -415,10 +457,9 @@ void snakeGrowth() {//蛇的长度增长
     tail->x = pre_x;
     tail->y = pre_y;
     ++curSnakeLen;//当前长度+1
-    gotoxy(pre_x, pre_y);
+    gotoxy(pre_x[id], pre_y[id]);
     color(6);
     printf("■");//进行打印
-    return;
 }
 
 bool isOverlap() {//检查新生成的苹果坐标是否和蛇身的任何一个部位重合
