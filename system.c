@@ -36,11 +36,21 @@ int keyboard(int pre) {//键盘输入判断
 			n = 3;
 		else if (c == 'd' || c == 'D')
 			n = 4;
+        else if (c == 'i' || c == 'I')
+            n = 6;
+        else if (c == 'j' || c == 'J')
+            n = 7;
+        else if (c == 'k' || c == 'K')
+            n = 8;
+        else if (c == 'l' || c == 'L')
+            n = 9;
 		else if (c == ' ')
 			n = 5;
 	}
 	rewind(stdin);//fflush(stdin); 刷新缓冲区,在VS2015之后不再起作用(编译成功但无效果)
 	if ((pre == 1 && n == 3) || (pre == 2 && n == 4) || (pre == 3 && n == 1) || (pre == 4 && n == 2))
+		return pre;//如果键盘要求蛇180度转向,则转向失败,蛇仍然按照原来的方向前进
+    if ((pre == 1 && n == 3) || (pre == 2 && n == 4) || (pre == 3 && n == 1) || (pre == 4 && n == 2))
 		return pre;//如果键盘要求蛇180度转向,则转向失败,蛇仍然按照原来的方向前进
 	return n;//成功转向,返回下一步前进的方向
 }

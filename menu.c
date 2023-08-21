@@ -42,20 +42,20 @@ void initGame(int model) {//初始化各项数据
     setDifficulty();
     //2.0版本更新游戏模式,此处初始化游戏界面使用switch进行分情况处理
     //暂时3种游戏模式的初始界面相同,switch用于日后方便扩展功能
-    extern snake *head1, *head2, *tail1, *tail2;
+    extern snake *head_arr[3], *tail_arr[3];
     switch (model) {
         case 1:
             printBox();
-            initSnakeAndApple(1, 8, 4, head1, tail1);
+            initSnakeAndApple(1, 8, 4, &head_arr[1], &tail_arr[1]);
             break;
         case 2:
             printBox();
-            initSnakeAndApple(1, 8, 4, head1, tail1);
-            initSnakeAndApple(1, 8, 6, head2, tail2);
+            initSnakeAndApple(1, 8, 4, &head_arr[1], &tail_arr[1]);
             break;
         case 3:
             printBox();
-            initSnakeAndApple(1, 8, 4, head1, tail1);
+            initSnakeAndApple(1, 8, 4, &head_arr[1], &tail_arr[1]);
+            initSnakeAndApple(2, 8, 6, &head_arr[2], &tail_arr[2]);
             break;
     }
 

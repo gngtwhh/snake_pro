@@ -19,7 +19,6 @@ int WIDTH = 30;//地图宽度
 int curSnakeLen[3] = {0};//当前的蛇身长度
 
 int maxSnakeLen = 0;//地图能容纳的最大蛇身长度,达到这个长度意味着游戏胜利
-bool win_flag = true;
 
 //starting
 void printBox() {
@@ -91,33 +90,33 @@ void printBox() {
 }
 
 //head_x为逻辑坐标,函数内进行*2操作;id为当前蛇的编号(从1开始)
-void initSnakeAndApple(int id, int head_x, int head_y, snake *head,
-                       snake *tail) {//缺陷:此函数未处理malloc可能的错误
+void initSnakeAndApple(int id, int head_x, int head_y, snake **head,
+                       snake **tail) {//缺陷:此函数未处理malloc可能的错误
     //初始化数据
     //以双向链表存储整条蛇,方便进行向前/向后遍历
 
     //创建蛇头
-    head = (snake *) malloc(sizeof(snake));
-    head->next = head->prior = NULL;
-    head->x = head_x * 2;
-    head->y = head_y;
+    *head = (snake *) malloc(sizeof(snake));
+    (*head)->next = (*head)->prior = NULL;
+    (*head)->x = head_x * 2;
+    (*head)->y = head_y;
     //创建剩余3个普通蛇身结点---游戏开局蛇的长度默认为4
-    snake *temp = head;
+    snake *temp = *head;
     for (int i = 1; i <= 3; ++i) {
         temp->next = (snake *) malloc(sizeof(snake));
         temp->next->prior = temp;
         temp = temp->next;
 
-        temp->x = (head->x) + i * 2;
+        temp->x = ((*head)->x) + i * 2;
         temp->y = 4;
     }
     temp->next = NULL;
-    tail = temp;
+    *tail = temp;
     curSnakeLen[id] = 4;//初始时蛇的长度为4
     maxSnakeLen = (WIDTH - 2) * (HEIGHT - 2);//根据地图大小计算游戏胜利蛇应该达到的长度
 
     //打印蛇头
-    temp = head;
+    temp = *head;
     color(2);
     gotoxy(temp->x, temp->y);
     printf("■");
@@ -138,8 +137,8 @@ void initSnakeAndApple(int id, int head_x, int head_y, snake *head,
     printf("■");
 
     //记录蛇尾
-    pre_x[id] = tail->x;
-    pre_y[id] = tail->y;
+    pre_x[id] = (*tail)->x;
+    pre_y[id] = (*tail)->y;
 }
 
 void setDifficulty() {
@@ -172,7 +171,7 @@ void setDifficulty() {
 
 //game bejin
 void start(int model) {
-    int flag = 2, flag2;//初始向左运动
+    int flag1 = 2, flag2 = 6, temp;//初始向左运动
     bool pause_game = false;
     //打印提示区域
     gotoxy(WIDTH * 2 + 4, 3);
@@ -199,10 +198,10 @@ void start(int model) {
                 return;
             }
             if (model == 1 &&
-                (againstTheWall() || againstSelf())) {//判断游戏结束,这里利用了短路&&
+                (againstTheWall(1) || againstSelf(1))) {//判断游戏结束,这里利用了短路&&
                 gameover();//进行游戏结束的处理
                 return;//处理完毕后结束这一局的游戏,跳转回主控制循环
-            } else if (model == 2 && againstSelf()) {
+            } else if (model == 2 && againstSelf(1)) {
                 gameover();//进行游戏结束的处理
                 return;//处理完毕后结束这一局的游戏,跳转回主控制循环
             }
@@ -236,23 +235,23 @@ void start(int model) {
         }
 
         //蛇1运动
-        flag2 = flag;//保存当前的前进方向
-        flag = keyboard(flag);//获取新的(可能发生改变的)移动方向
-        if (flag <= 4)
-            moveSnake(id, flag, model);
-        else if (flag == 5) {//5代表输入了空格,意味着暂停游戏
+        temp = flag1;//保存当前的前进方向
+        flag1 = keyboard(flag1);//获取新的(可能发生改变的)移动方向
+        if (flag1 <= 4)
+            moveSnake(1, flag1, model);
+        else if (flag1 == 5) {//5代表输入了空格,意味着暂停游戏
             pause_game = true;//设置暂停标志位
-            flag = flag2;//前进方向重置为原来的方向
+            flag1 = temp;//前进方向重置为原来的方向
         }
 
         //蛇2运动
-        flag2 = flag;//保存当前的前进方向
-        flag = keyboard(flag);//获取新的(可能发生改变的)移动方向
-        if (flag < 5)
-            moveSnake(head1, tail1, model);
-        else if (flag == 5) {//5代表输入了空格,意味着暂停游戏
+        temp = flag2;//保存当前的前进方向
+        flag2 = keyboard(flag2);//获取新的(可能发生改变的)移动方向
+        if (flag2 >= 6)
+            moveSnake(2, flag2, model);
+        else if (flag2 == 5) {//5代表输入了空格,意味着暂停游戏
             pause_game = true;//设置暂停标志位
-            flag = flag2;//前进方向重置为原来的方向
+            flag2 = temp;//前进方向重置为原来的方向
         }
 
 
@@ -261,8 +260,7 @@ void start(int model) {
             gotoxy(WIDTH * 2 + 4, 4);
             color(7);
             printf("pause    ");
-            char c;
-            while (c = _getch() != ' ');//暂停的死循环---直到键入空格,跳出循环,游戏继续
+            while (_getch() != ' ');//暂停的死循环---直到键入空格,跳出循环,游戏继续
             rewind(stdin);
             pause_game = false;
             gotoxy(WIDTH * 2 + 4, 4);
@@ -274,15 +272,25 @@ void start(int model) {
     }
 }
 
-bool againstTheWall() {//检查撞墙即检查蛇头的坐标是否和墙壁的坐标重合
+bool againstTheWall(int id) {//检查撞墙即检查蛇头的坐标是否和墙壁的坐标重合
+    snake *head = head_arr[id];
     if (head->x == 0 || head->x == WIDTH * 2 - 2 ||
         head->y == 0 || head->y == HEIGHT - 1)
         return true;
     return false;
 }
 
-bool againstSelf() {//检查撞到自己即检查蛇头的坐标是否和任一蛇身的坐标重合
+bool againstSelf(int id) {//检查撞到自己即检查蛇头的坐标是否和任一蛇身的坐标重合
+    snake *head = head_arr[id];
     snake *temp = head->next;
+    //遍历自己
+    while (temp != NULL) {//对链表进行遍历
+        if (head->x == temp->x && head->y == temp->y)
+            return true;
+        temp = temp->next;
+    }
+    //遍历对手
+    temp = head_arr[3 - id]->next;
     while (temp != NULL) {//对链表进行遍历
         if (head->x == temp->x && head->y == temp->y)
             return true;
@@ -315,14 +323,13 @@ void gameover() {//游戏结束的处理
         printf("%s", endInterface[i]);
     }
     gotoxy(34, 6);
-    char c;
-    while (c = _getch() != ' ');//直到键入空格才会返回
+    while (_getch() != ' ');//直到键入空格才会返回
 }
 
 //代码冗余,尚未优化
-void gamewin() {//游戏胜利的处理
+void gamewin(int id) {//游戏胜利的处理
     system("cls");
-    const char *endInterface[8] = {
+    char *endInterface[8] = {
             "        _______________________________________________\n",
             "        |                                             |\n",
             "        |        游戏胜利:                            |\n",
@@ -332,11 +339,17 @@ void gamewin() {//游戏胜利的处理
             "        -----------------------------------------------\n",
             "                    按空格键确认:[ ]"
     };
+    const char *multiplayerEndInterface[2] = {
+            "        |        玩家1胜利:                           |\n",
+            "        |        玩家2胜利:                           |\n"
+    };
+    if (id > 0)
+        strcat(endInterface[2], multiplayerEndInterface[id - 1]);
     for (int i = 0; i < 4; ++i) {
         color(i + 2);
         printf("%s", endInterface[i]);
     }
-    printf("%d", score);
+    printf("%d", score[id]);
     gotoxy(54, 3);
     putchar('|');
     for (int i = 4; i < 8; ++i) {
@@ -344,8 +357,7 @@ void gamewin() {//游戏胜利的处理
         printf("%s", endInterface[i]);
     }
     gotoxy(34, 6);
-    char c;
-    while (c = _getch() != ' ');//同样等待输入
+    while (_getch() != ' ');//同样等待输入
 }
 
 void moveSnake(int id, int flag, int model) {//蛇的正常前进
@@ -361,7 +373,8 @@ void moveSnake(int id, int flag, int model) {//蛇的正常前进
     /*
      * 首先处理常规的移动
      */
-
+    if (flag > 5)
+        flag -= 5;
     flag--;//对应move数组的元素--从下标0开始
     //保存蛇尾位置
     pre_x[id] = tail->x;
@@ -433,7 +446,6 @@ void moveSnake(int id, int flag, int model) {//蛇的正常前进
 void eatApple(int id) {
     snakeGrowth(id);//蛇长长
 
-
     //进行下一个苹果的生成(随机)
     srand((unsigned int) time(NULL));
     do {
@@ -447,37 +459,43 @@ void eatApple(int id) {
 }
 
 void snakeGrowth(int id) {//蛇的长度增长
-    snake *head = head_arr[id];
+//    snake *head = head_arr[id];
     snake *tail = tail_arr[id];
     //新增蛇身结点---即在蛇尾新增一个结点并即刻打印(蛇此时已前进一格且吃到苹果
     tail->next = (snake *) malloc(sizeof(snake));
     tail->next->prior = tail;
     tail = tail->next;
     tail->next = NULL;
-    tail->x = pre_x;
-    tail->y = pre_y;
-    ++curSnakeLen;//当前长度+1
+    tail->x = pre_x[id];
+    tail->y = pre_y[id];
+    ++curSnakeLen[id];//当前长度+1
     gotoxy(pre_x[id], pre_y[id]);
     color(6);
     printf("■");//进行打印
 }
 
 bool isOverlap() {//检查新生成的苹果坐标是否和蛇身的任何一个部位重合
-    snake *temp = head;
-    while (temp != NULL) {//遍历蛇身链表
-        if (apple.x == temp->x && apple.y == temp->y)
-            return true;
-        temp = temp->next;
+    for (int i = 1; i <= 2; ++i) {
+        snake *temp = head_arr[i];
+        while (temp != NULL) {//遍历蛇身链表
+            if (apple.x == temp->x && apple.y == temp->y)
+                return true;
+            temp = temp->next;
+        }
     }
     return false;
 }
 
 void destoryGameData() {//主要任务即销毁链表
-    snake *temp = head;
-    snake *next = NULL;
-    while (temp != NULL) {//遍历蛇身链表
-        next = temp->next;//蛇最短也有4个结点,不存在temp和temp->next为NULL的情况
-        free(temp);
-        temp = next;
+    for (int i = 1; i <= 2; ++i) {
+        snake *temp = head_arr[i];
+        snake *next = NULL;
+        while (temp != NULL) {//遍历蛇身链表
+            next = temp->next;//蛇最短也有4个结点,不存在temp和temp->next为NULL的情况
+            free(temp);
+            temp = next;
+        }
     }
+    head_arr[1] = head_arr[2] = NULL;
+    tail_arr[1] = tail_arr[2] = NULL;
 }

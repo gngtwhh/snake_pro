@@ -28,17 +28,17 @@ void wrongInput();//菜单选择错误输入处理
 
 //starting---各个游戏数据初始化函数
 void printBox();//打印地图
-void initSnakeAndApple(int id,int head_x, int head_y, snake *head,
-                       snake *tail);//初始化蛇和苹果
+void initSnakeAndApple(int id,int head_x, int head_y, snake **head,
+                       snake **tail);//初始化蛇和苹果
 void setDifficulty();//设置游戏难度
 
 //game begin---游戏逻辑主体
 void start(int model);//游戏主循环(总控制)
 //void snakeBehavior(snake*head,snake*tail,int id,int flag);//蛇的行为控制,包括移动,增长和吃到苹果的处理,4个参数分别为蛇头,蛇尾,蛇编号,方向
-bool againstTheWall();//检查蛇是否撞墙
-bool againstSelf();//检查蛇是否撞到自己
+bool againstTheWall(int id);//检查蛇是否撞墙
+bool againstSelf(int id);//检查蛇是否撞到自己
 void gameover();//游戏结束处理
-void gamewin();//游戏胜利界面
+void gamewin(int flag);//游戏胜利界面
 void snakeGrowth(int id);//吃到苹果时蛇增长
 void moveSnake(int id,int flag, int model);//移动蛇,三个参数为蛇编号,方向,游戏模式
 void eatApple(int id);//吃到了苹果时的处理---包括苹果的重新生成和蛇的增长
