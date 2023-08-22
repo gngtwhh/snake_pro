@@ -90,33 +90,33 @@ void printBox() {
 }
 
 //head_x为逻辑坐标,函数内进行*2操作;id为当前蛇的编号(从1开始)
-void initSnakeAndApple(int id, int head_x, int head_y, snake **head,
-                       snake **tail) {//缺陷:此函数未处理malloc可能的错误
+void initSnakeAndApple(int id, int head_x, int head_y) {//缺陷:此函数未处理malloc可能的错误
     //初始化数据
     //以双向链表存储整条蛇,方便进行向前/向后遍历
 
     //创建蛇头
-    *head = (snake *) malloc(sizeof(snake));
-    (*head)->next = (*head)->prior = NULL;
-    (*head)->x = head_x * 2;
-    (*head)->y = head_y;
+    head_arr[id] = (snake *) malloc(sizeof(snake));
+    snake *head = head_arr[id];
+    head->next = head->prior = NULL;
+    head->x = head_x * 2;
+    head->y = head_y;
     //创建剩余3个普通蛇身结点---游戏开局蛇的长度默认为4
-    snake *temp = *head;
+    snake *temp = head;
     for (int i = 1; i <= 3; ++i) {
         temp->next = (snake *) malloc(sizeof(snake));
         temp->next->prior = temp;
         temp = temp->next;
 
-        temp->x = ((*head)->x) + i * 2;
-        temp->y = 4;
+        temp->x = (head->x) + i * 2;
+        temp->y = head_y;
     }
     temp->next = NULL;
-    *tail = temp;
+    tail_arr[id] = temp;
     curSnakeLen[id] = 4;//初始时蛇的长度为4
     maxSnakeLen = (WIDTH - 2) * (HEIGHT - 2);//根据地图大小计算游戏胜利蛇应该达到的长度
 
     //打印蛇头
-    temp = *head;
+    temp = head;
     color(2);
     gotoxy(temp->x, temp->y);
     printf("■");
@@ -137,8 +137,8 @@ void initSnakeAndApple(int id, int head_x, int head_y, snake **head,
     printf("■");
 
     //记录蛇尾
-    pre_x[id] = (*tail)->x;
-    pre_y[id] = (*tail)->y;
+    pre_x[id] = tail_arr[id]->x;
+    pre_y[id] = tail_arr[id]->y;
 }
 
 void setDifficulty() {
@@ -171,7 +171,7 @@ void setDifficulty() {
 
 //game bejin
 void start(int model) {
-    int flag1 = 2, flag2 = 6, temp;//初始向左运动
+    int flag1 = 2, flag2 = 7, temp;//初始向左运动
     bool pause_game = false;
     //打印提示区域
     gotoxy(WIDTH * 2 + 4, 3);
@@ -435,6 +435,11 @@ void moveSnake(int id, int flag, int model) {//蛇的正常前进
     gotoxy(head->x, head->y);
     color(2);
     printf("■");
+
+    //重写刷新回数组
+    head_arr[id] = head;
+    tail_arr[id] = tail;
+
 
     /*
      * 接下来处理吃到苹果的情况

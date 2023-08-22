@@ -46,16 +46,16 @@ void initGame(int model) {//初始化各项数据
     switch (model) {
         case 1:
             printBox();
-            initSnakeAndApple(1, 8, 4, &head_arr[1], &tail_arr[1]);
+            initSnakeAndApple(1, 8, 4);
             break;
         case 2:
             printBox();
-            initSnakeAndApple(1, 8, 4, &head_arr[1], &tail_arr[1]);
+            initSnakeAndApple(1, 8, 4);
             break;
         case 3:
             printBox();
-            initSnakeAndApple(1, 8, 4, &head_arr[1], &tail_arr[1]);
-            initSnakeAndApple(2, 8, 6, &head_arr[2], &tail_arr[2]);
+            initSnakeAndApple(1, 8, 4);
+            initSnakeAndApple(2, 8, 6);
             break;
     }
 

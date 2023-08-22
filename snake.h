@@ -28,8 +28,7 @@ void wrongInput();//菜单选择错误输入处理
 
 //starting---各个游戏数据初始化函数
 void printBox();//打印地图
-void initSnakeAndApple(int id,int head_x, int head_y, snake **head,
-                       snake **tail);//初始化蛇和苹果
+void initSnakeAndApple(int id,int head_x, int head_y);//初始化蛇和苹果
 void setDifficulty();//设置游戏难度
 
 //game begin---游戏逻辑主体
