@@ -47,4 +47,5 @@ void destoryGameData();//当前一局游戏结束时释放空间
 //system---系统相关的函数
 void gotoxy(int, int);//光标重定位
 void color(int);//设置打印颜色
-int keyboard(int);//无缓冲键盘输入支持
+//int keyboard(int);//无缓冲键盘输入支持
+int keyboard_2();//无缓冲键盘输入支持_2

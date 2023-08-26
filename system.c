@@ -11,7 +11,6 @@
 void color(int i) {//更改文字颜色
     //SetConsoleTextAttribute是API设置控制台窗口字体颜色和背景色的函数
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), i);
-    return;
 }
 
 //游戏中每次调用gotoxy时的参数都是根据游戏菜单字符位置/当前坐标计算好传递过来的
@@ -56,4 +55,17 @@ int keyboard(int pre) {//键盘输入判断
         (pre == 9 && n == 7))
         return pre;//如果键盘要求蛇180度转向,则转向失败,蛇仍然按照原来的方向前进
     return n;//成功转向,返回下一步前进的方向
+}
+
+int keyboard_2() {
+    int n = 0;
+    char hits[10] = {0, 'w', 'a', 's', 'd', ' ', 'i', 'j', 'k', 'l'};
+    if (_kbhit()) {
+        n = _getch();
+        for (int i = 1; i < 10; ++i) {
+            if (n == hits[i])
+                return i;
+        }
+    }
+    return 0;
 }

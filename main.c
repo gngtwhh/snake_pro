@@ -18,7 +18,7 @@ int main() {
     char c;
     while (1) {//控制主循环
         gotoxy(37, 17);//定位到输入栏
-        c = _getch();//vs2022要求将getch()更换为_getch()---标准c编译器换回getch()(?)
+        c = _getch();//vs2022要求将getch()更换为_getch()---gcc编译器换回getch()(?)
         if (c == '1') {
             initGame(1);//游戏数据初始化
             start(1);//正式开始一局经典模式游戏
@@ -40,6 +40,8 @@ int main() {
             printf("游戏结束!\n");
             break;//跳出循环,结束游戏
         } else wrongInput();//输入非法,打印错误信息
+        destoryGameData();
     }
+    destoryGameData();
     return 0;
 }

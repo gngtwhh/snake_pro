@@ -43,6 +43,8 @@ void initGame(int model) {//初始化各项数据
     //2.0版本更新游戏模式,此处初始化游戏界面使用switch进行分情况处理
     //暂时3种游戏模式的初始界面相同,switch用于日后方便扩展功能
     extern snake *head_arr[3], *tail_arr[3];
+    memset(head_arr,0,sizeof(head_arr));
+    memset(tail_arr,0,sizeof(tail_arr));
     switch (model) {
         case 1:
             printBox();
