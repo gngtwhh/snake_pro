@@ -5,9 +5,16 @@
 #include <stdio.h>
 #include <conio.h>
 #include <stdlib.h>
+#include <windows.h>
+#include <mmsystem.h>
 #include "snake.h"//包含了所有的函数声明,和为了与c++兼容设置的bool宏
+#pragma comment(lib,"Winmm.lib")
 int main() {
-	printMenu();//第一次进入循环前先初始化一次菜单
+    //播放音乐
+    mciSendString("open 1.mp3 alias bkmusic", NULL, 0, NULL);
+    mciSendString("play bkmusic repeat", NULL, 0, NULL);
+
+    printMenu();//第一次进入循环前先初始化一次菜单
 	char c;
 	while (1) {//控制主循环
 		gotoxy(37, 17);//定位到输入栏
@@ -26,5 +33,7 @@ int main() {
 		}
 		else wrongInput();//输入非法,打印错误信息
 	}
-	return 0;
+    mciSendString("stop bkmusic", NULL, 0, NULL);		//停止播放音乐
+    mciSendString("close bkmusic", NULL, 0, NULL);		//关闭音乐
+    return 0;
 }

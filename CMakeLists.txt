@@ -7,3 +7,6 @@ file(GLOB ALL_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/*.c
 )
 add_executable(snake_plus ${ALL_SOURCES})
+#target_link_libraries(${target_name} Winmm.lib)
+link_libraries(winmm.lib)
+link_libraries("winmm.lib")
