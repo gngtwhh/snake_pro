@@ -8,11 +8,11 @@
 #include <windows.h>
 #include <mmsystem.h>
 #include "snake.h"//包含了所有的函数声明,和为了与c++兼容设置的bool宏
-#pragma comment(lib,"Winmm.lib")
 int main() {
     //播放音乐
-    mciSendString("open 1.mp3 alias bkmusic", NULL, 0, NULL);
+    mciSendString("open D:\\Data\\code\\Clion\\贪吃蛇_多玩法\\1.mp3 alias bkmusic", NULL, 0, NULL);
     mciSendString("play bkmusic repeat", NULL, 0, NULL);
+    //问题:无声音
 
     printMenu();//第一次进入循环前先初始化一次菜单
 	char c;

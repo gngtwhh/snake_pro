@@ -8,5 +8,5 @@ file(GLOB ALL_SOURCES
 )
 add_executable(snake_plus ${ALL_SOURCES})
 #target_link_libraries(${target_name} Winmm.lib)
-link_libraries(winmm.lib)
-link_libraries("winmm.lib")
+
+target_link_libraries(snake_plus winmm)
